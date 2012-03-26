@@ -8,6 +8,8 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>../../Dropbox/Documents/TP-IF/TPThread/numbers.txt</itemPath>
+      <itemPath>../../Dropbox/Documents/TP-IF/TPThread/numbers2.txt</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"

@@ -31,37 +31,32 @@ int is_prime(unsigned int p) {
 	return (j >= max) ? 1 : 0;
 }
 
-void print_prime_factors_nodisp(unsigned n, int startresearch) {
+int print_prime_factors_nodisp(unsigned n, int startresearch, int pas_i) {
 #ifdef MAP
 	printf("\n%d :", n);
 #endif
 	if (!(n % 2)) {
 		printf(" %d", 2);
-		return print_prime_factors_nodisp(n / 2, 2);
+		return print_prime_factors_nodisp(n / 2, 2, pas_i);
 	}
 	if (!(n % 3)) {
 		printf(" %d", 3);
-		return print_prime_factors_nodisp(n / 3, 3);
+		return print_prime_factors_nodisp(n / 3, 3, pas_i);
 	}
 	if (!(n % 5)) {
 		printf(" %d", 5);
-		return print_prime_factors_nodisp(n / 5, 5);
+		return print_prime_factors_nodisp(n / 5, 5, pas_i);
 	}
 
-	int pas_i = 4;
+	pas_i = (pas_i == 0) ? 4 : pas_i;
 	int i;
-	//startresearch = (startresearch >= 7) ? startresearch : 7;
-	//startresearch = 7;
-	//startresearch = (startresearch%4) ? startresearch-(startresearch%4) : startresearch;
-	//printf("//startresearch=%d//", startresearch);
-	for (i = 7; i <= n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
+	startresearch = (startresearch >= 7) ? startresearch : 7;
+	//printf(" //startresearch=%d// ", startresearch);
+	for (i = startresearch; i <= n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 		if (!(n % i) && is_prime(i)) {
 			printf(" %d", i);
 			if (n > i) {
-				return print_prime_factors_nodisp(n / i, i);
-			} else {
-				printf("\n");
-				return;
+				return print_prime_factors_nodisp(n / i, i, pas_i);
 			}
 		}
 #ifdef MAP
@@ -70,36 +65,35 @@ void print_prime_factors_nodisp(unsigned n, int startresearch) {
 		}
 #endif
 	}
-
+	return pas_i;
 }
 
 void print_prime_factors(unsigned n) {
 	printf("%u:", n);
+	int pas_i = 0;
 
 	if (is_prime(n)) {
 		printf(" %u\n", n);
 		return;
-	}
-
-	if (!(n % 2)) {
+	} else if (!(n % 2)) {
 		printf(" %d", 2);
-		return print_prime_factors_nodisp(n / 2, 2);
-	}
-	if (!(n % 3)) {
+		pas_i = print_prime_factors_nodisp(n / 2, 2, 0);
+	} else if (!(n % 3)) {
 		printf(" %d", 3);
-		return print_prime_factors_nodisp(n / 3, 3);
-	}
-	if (!(n % 5)) {
+		pas_i = print_prime_factors_nodisp(n / 3, 3, 0);
+	} else if (!(n % 5)) {
 		printf(" %d", 5);
-		return print_prime_factors_nodisp(n / 5, 5);
-	}
+		pas_i = print_prime_factors_nodisp(n / 5, 5, 0);
+	} else {
 
-	int pas_i = 4;
-	int i;
-	for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
-		if (!(n % i) && is_prime(i)) {
-			printf(" %d", i);
-			return print_prime_factors_nodisp(n / i, i);
+		int pas_j = 4;
+		int i;
+		for (i = 7; i < n; i += pas_j, pas_j = 6 - pas_j) {//* utilisation d'un pas alternatif
+			if (!(n % i) && is_prime(i)) {
+				printf(" %d", i);
+				print_prime_factors_nodisp(n / i, i, 0);
+				break;
+			}
 		}
 	}
 
@@ -108,30 +102,38 @@ void print_prime_factors(unsigned n) {
 
 unsigned get_prime_factors(unsigned n, unsigned* factors) {
 	unsigned index = 0;
+	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
+	unsigned lastone = 0;
 	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
-		if (!(n % 2)) {
-			factors[index] = 2;
-			n /= 2;
-		} else if (!(n % 3)) {
-			factors[index] = 3;
-			n /= 3;
-		} else if (!(n % 5)) {
-			factors[index] = 5;
-			n /= 5;
-		} else {
-			int pas_i = 4;
-			int i, lastone = 7;
-			
-			for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
-				if (!(n % i) && is_prime(i)) {
-					factors[index] = i;
-					n /= i;
-					lastone = i;
-					break;
-				}
+		if (!lastone) {
+			if (!(n % 2)) {
+				factors[index++] = 2;
+				n /= 2;
+			} else if (!(n % 3)) {
+				factors[index++] = 3;
+				n /= 3;
+			} else if (!(n % 5)) {
+				factors[index++] = 5;
+				n /= 5;
+			} else {
+				lastone = 3;// 3 (here) + 4 (pas_i added at the begining of the loop at the bottom) = 7 (the default beginning value)
+			}
+			continue;
+		}
+
+		//lastone = 7;
+		unsigned i;
+		//unsigned stop = 0;
+		for (i = lastone+pas_i; i <= n; ) {//* utilisation d'un pas alternatif
+			if (!(n % i) && is_prime(i)) {
+				factors[index++] = i;
+				n /= i;
+				lastone = i;
+			} else {//* on ne met à jour la variable de parcours qu'une fois qu'on a "épuisé" un possible facteur on crée une sous-boucle artificielle en moins lourd
+				i += pas_i;
+				pas_i = 6 - pas_i;
 			}
 		}
-		index++;
 	}
 	return index;
 }
@@ -141,7 +143,7 @@ void print_prime_factorsMemoized(unsigned n) {
 	unsigned int factors[MAX_FACTORS];
 
 	if (is_prime(n)) {
-		printf(" %d\n", n);
+		printf(" %u\n", n);
 		return;
 	}
 
@@ -169,7 +171,6 @@ void readMyFile(char* fname) {
 	}
 	fclose(f);
 }
-
 
 void readMyreadMyFileSynced_And_Memoized(FILE* f) {
 
@@ -361,10 +362,8 @@ int main(int argc, char** argv) {
 	
 		readMyFile("numbers.txt");
 	 */
-	
-	//readMyFile("numbers.txt");
-	//return 0;
-	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
+	//print_prime_factors(27166);
+	readMyFileThreadedN_And_Memoized("numbers2.txt", 1);
 	pthread_exit(NULL);
 	return 0;
 }
