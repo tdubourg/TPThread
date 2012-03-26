@@ -93,7 +93,7 @@ void print_prime_factors(unsigned n) {
 	int pas_i = 4;
 	int i;
 	for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
-		if (is_prime(i) && !(n % i)) {
+		if (!(n % i) && is_prime(i)) {
 			printf(" %d", i);
 			return print_prime_factors_nodisp(n / i);
 		}
@@ -105,10 +105,6 @@ void print_prime_factors(unsigned n) {
 unsigned get_prime_factors(unsigned n, unsigned* factors) {
 	unsigned index = 0;
 	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
-		if (is_prime(n)) {
-			factors[index] = n;
-		}
-
 		if (!(n % 2)) {
 			factors[index] = 2;
 			n /= 2;
@@ -122,7 +118,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			int pas_i = 4;
 			int i;
 			for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
-				if (is_prime(i) && !(n % i)) {
+				if (!(n % i) && is_prime(i)) {
 					factors[index] = i;
 					n /= i;
 					break;
@@ -292,7 +288,7 @@ void readMyFileThreadedN_And_Memoized(char* fname, unsigned int N) {
 
 	int ij;
 	for (ij = 0; ij < N; ij++) {
-		pthread_create(&(tids[ij]), NULL, readMyFileThreadedN_And_Memoized, (void*) f);
+		pthread_create(&(tids[ij]), NULL, readMyreadMyFileSynced_And_Memoized, (void*) f);
 	}
 
 	for (ij = 0; ij < N; ij++) {
