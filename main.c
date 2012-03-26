@@ -4,8 +4,10 @@
 
 //#define MAP
 #define MAX_FACTORS 30
+#define MAX_NUMBERS 1000
 
 static pthread_mutex_t mid;
+static unsigned MEMORY[MAX_NUMBERS];
 
 /************************* CORE FUNCTIONS ************************/
 int is_prime(unsigned int p) {
