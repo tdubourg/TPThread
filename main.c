@@ -31,30 +31,34 @@ int is_prime(unsigned int p) {
 	return (j >= max) ? 1 : 0;
 }
 
-void print_prime_factors_nodisp(unsigned n) {
+void print_prime_factors_nodisp(unsigned n, int startresearch) {
 #ifdef MAP
 	printf("\n%d :", n);
 #endif
 	if (!(n % 2)) {
 		printf(" %d", 2);
-		return print_prime_factors_nodisp(n / 2);
+		return print_prime_factors_nodisp(n / 2, 2);
 	}
 	if (!(n % 3)) {
 		printf(" %d", 3);
-		return print_prime_factors_nodisp(n / 3);
+		return print_prime_factors_nodisp(n / 3, 3);
 	}
 	if (!(n % 5)) {
 		printf(" %d", 5);
-		return print_prime_factors_nodisp(n / 5);
+		return print_prime_factors_nodisp(n / 5, 5);
 	}
 
 	int pas_i = 4;
 	int i;
+	//startresearch = (startresearch >= 7) ? startresearch : 7;
+	//startresearch = 7;
+	//startresearch = (startresearch%4) ? startresearch-(startresearch%4) : startresearch;
+	//printf("//startresearch=%d//", startresearch);
 	for (i = 7; i <= n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 		if (!(n % i) && is_prime(i)) {
 			printf(" %d", i);
 			if (n > i) {
-				return print_prime_factors_nodisp(n / i);
+				return print_prime_factors_nodisp(n / i, i);
 			} else {
 				printf("\n");
 				return;
@@ -79,15 +83,15 @@ void print_prime_factors(unsigned n) {
 
 	if (!(n % 2)) {
 		printf(" %d", 2);
-		return print_prime_factors_nodisp(n / 2);
+		return print_prime_factors_nodisp(n / 2, 2);
 	}
 	if (!(n % 3)) {
 		printf(" %d", 3);
-		return print_prime_factors_nodisp(n / 3);
+		return print_prime_factors_nodisp(n / 3, 3);
 	}
 	if (!(n % 5)) {
 		printf(" %d", 5);
-		return print_prime_factors_nodisp(n / 5);
+		return print_prime_factors_nodisp(n / 5, 5);
 	}
 
 	int pas_i = 4;
@@ -95,7 +99,7 @@ void print_prime_factors(unsigned n) {
 	for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 		if (!(n % i) && is_prime(i)) {
 			printf(" %d", i);
-			return print_prime_factors_nodisp(n / i);
+			return print_prime_factors_nodisp(n / i, i);
 		}
 	}
 
@@ -116,11 +120,13 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			n /= 5;
 		} else {
 			int pas_i = 4;
-			int i;
+			int i, lastone = 7;
+			
 			for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 				if (!(n % i) && is_prime(i)) {
 					factors[index] = i;
 					n /= i;
+					lastone = i;
 					break;
 				}
 			}
@@ -355,6 +361,9 @@ int main(int argc, char** argv) {
 	
 		readMyFile("numbers.txt");
 	 */
+	
+	//readMyFile("numbers.txt");
+	//return 0;
 	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
 	pthread_exit(NULL);
 	return 0;
