@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <pthread.h>
-#include "arbre.c"
+#include "arbre.h"
 //#define MAP
 
 #define MAX_NUMBERS MAX_NUMBERS
@@ -104,7 +104,7 @@ void print_prime_factors(unsigned n) {
 }
 
 unsigned get_prime_factors(unsigned n, unsigned* factors) {
-	t_noeud* already;
+	t_arbre* already;
 
 	unsigned index = 0;
 	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche

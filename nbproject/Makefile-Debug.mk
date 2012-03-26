@@ -34,6 +34,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/arbre.o \
 	${OBJECTDIR}/main.o
 
 # Test Directory
@@ -67,6 +68,11 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tpthread: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -lpthread -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tpthread ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
+${OBJECTDIR}/arbre.o: nbproject/Makefile-${CND_CONF}.mk arbre.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/arbre.o arbre.c
+
 ${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -87,6 +93,19 @@ ${TESTDIR}/tests/UnicityTest.o: tests/UnicityTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -g -I. -MMD -MP -MF $@.d -o ${TESTDIR}/tests/UnicityTest.o tests/UnicityTest.cpp
 
+
+${OBJECTDIR}/arbre_nomain.o: ${OBJECTDIR}/arbre.o arbre.c 
+	${MKDIR} -p ${OBJECTDIR}
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/arbre.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} $@.d;\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/arbre_nomain.o arbre.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/arbre.o ${OBJECTDIR}/arbre_nomain.o;\
+	fi
 
 ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.c 
 	${MKDIR} -p ${OBJECTDIR}
