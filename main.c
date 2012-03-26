@@ -116,7 +116,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			already = rechercher_arbre(MEM_TREE, n);
 			if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
 				unsigned index2 = index;
-				while (already->valeur[index2] != NULL) {
+				while (already->valeur[index2] != EoT) {
 					factors[index++] = already->valeur[index2++];
 				}
 				return index;
@@ -126,14 +126,17 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			if (!(n % 2)) {
 				factors[index++] = 2;
 				factors[index] = EoT;
+				n_prev = n;
 				n /= 2;
 			} else if (!(n % 3)) {
 				factors[index++] = 3;
 				factors[index] = EoT;
+				n_prev = n;
 				n /= 3;
 			} else if (!(n % 5)) {
 				factors[index++] = 5;
 				factors[index] = EoT;
+				n_prev = n;
 				n /= 5;
 			} else {
 				lastone = 3; // 3 (here) + 4 (pas_i added at the begining of the loop at the bottom) = 7 (the default beginning value)
@@ -143,16 +146,17 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 		//* Memoization of the current decomposition for current n value :
 		t_element* factors_cpy = (t_element*) malloc(sizeof(t_element)*MAX_FACTORS);
 		memcpy(factors_cpy, factors, sizeof(t_element)*MAX_FACTORS);//* copy the factors[] array into factors_cpy[] array
-		MEM_TREE = inserer_arbre(MEM_TREE, n, factors_cpy);
+		MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy);
 		
 
 		//lastone = 7;
 		unsigned i;
 		//unsigned stop = 0;
+		n_prev = n;
 		for (i = lastone + pas_i; i <= n;) {//* utilisation d'un pas alternatif
 			if (!(n % i) && is_prime(i)) {
 				factors[index++] = i;
-				factors[index] = EoT;
+				factors[index] = EoT;		
 				n /= i;
 				lastone = i;
 			} else {//* on ne met à jour la variable de parcours qu'une fois qu'on a "épuisé" un possible facteur on crée une sous-boucle artificielle en moins lourd
@@ -165,9 +169,6 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 }
 
 void print_prime_factorsMemoized(unsigned n) {
-
-	//* Initialisation de la structure de données :
-	MEM_TREE = creer_arbre(0, NULL, NULL, NULL);
 	int j, k;
 	unsigned int factors[MAX_FACTORS];
 
@@ -313,6 +314,10 @@ void readMyFileThreadedN(char* fname, unsigned int N) {
 }
 
 void readMyFileThreadedN_And_Memoized(char* fname, unsigned int N) {
+	
+	//* Initialisation de la structure de données :
+	MEM_TREE = creer_arbre(0, NULL, NULL, NULL);
+
 	FILE *f;
 	f = fopen(fname, "r");
 
@@ -333,6 +338,7 @@ void readMyFileThreadedN_And_Memoized(char* fname, unsigned int N) {
 
 	pthread_mutex_destroy(&mid);
 	fclose(f);
+	detruire_arbre(MEM_TREE);
 }
 
 /******************* TEST FUNCTIONS **************** */
@@ -392,7 +398,7 @@ int main(int argc, char** argv) {
 		readMyFile("numbers.txt");
 	 */
 	//print_prime_factors(27166);
-	readMyFileThreadedN_And_Memoized("numbers2.txt", 1);
+	readMyFileThreadedN_And_Memoized("numbers.txt", 1);
 	pthread_exit(NULL);
 	return 0;
 }

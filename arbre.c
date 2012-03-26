@@ -58,13 +58,11 @@ t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors) {
 			prec = curr;
 			curr = curr->gauche;
 			left = 1;
-			break; // on a trouvé où aller, on sort de la boucle de comparaison des chaines de caract_res
 		} else if (e < v) {
 			// On descend dans l'arbre droit cette fois
 			prec = curr;
 			curr = curr->droit;
 			left = 0;
-			break; // on a trouvé où aller, on sort de la boucle de comparaison des chaines de caract_res
 		} else {//* l'élément existe déjà ds l'arbre on peut pas insérer
 			return a;
 		}
@@ -110,11 +108,9 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 			// car la valeur du noeud courant est plus grande
 			// que celle à insérer
 			curr = curr->gauche;
-			break; // on a trouvé où aller, on sort de la boucle de comparaison des chaines de caract_res
 		} else if (e < v) {
 			// On descend dans l'arbre droit cette fois
 			curr = curr->droit;
-			break; // on a trouvé où aller, on sort de la boucle de comparaison des chaines de caract_res
 		} else {// == 
 			return curr;
 		}
