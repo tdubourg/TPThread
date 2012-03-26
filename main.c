@@ -3,6 +3,9 @@
 #include <pthread.h>
 
 //#define MAP
+#define MAX_FACTORS 30
+
+static pthread_mutex_t mid;
 
 /************************* CORE FUNCTIONS ************************/
 int is_prime(unsigned int p) {
@@ -67,10 +70,10 @@ void print_prime_factors_nodisp(unsigned n) {
 }
 
 void print_prime_factors(unsigned n) {
-	printf("%d:", n);
+	printf("%u:", n);
 
 	if (is_prime(n)) {
-		printf(" %d\n", n);
+		printf(" %u\n", n);
 		return;
 	}
 
@@ -99,6 +102,57 @@ void print_prime_factors(unsigned n) {
 	printf("\n");
 }
 
+unsigned get_prime_factors(unsigned n, unsigned* factors) {
+	unsigned index = 0;
+	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
+		if (is_prime(n)) {
+			factors[index] = n;
+		}
+
+		if (!(n % 2)) {
+			factors[index] = 2;
+			n /= 2;
+		} else if (!(n % 3)) {
+			factors[index] = 3;
+			n /= 3;
+		} else if (!(n % 5)) {
+			factors[index] = 5;
+			n /= 5;
+		} else {
+			int pas_i = 4;
+			int i;
+			for (i = 7; i < n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
+				if (is_prime(i) && !(n % i)) {
+					factors[index] = i;
+					n /= i;
+					break;
+				}
+			}
+		}
+		index++;
+	}
+	return index;
+}
+
+void print_prime_factorsMemoized(unsigned n) {
+	int j, k;
+	unsigned int factors[MAX_FACTORS];
+
+	if (is_prime(n)) {
+		printf(" %d\n", n);
+		return;
+	}
+
+	k = get_prime_factors(n, factors);
+
+	printf("%u: ", n);
+	for (j = 0; j < k; j++) {
+		printf("%u ", factors[j]);
+	}
+
+	printf("\n");
+}
+
 void readMyFile(char* fname) {
 	FILE *f;
 	f = fopen(fname, "r");
@@ -114,16 +168,34 @@ void readMyFile(char* fname) {
 	fclose(f);
 }
 
-static pthread_mutex_t mid;
 
-void readMyFileSynced(FILE* f) {
-	
+void readMyreadMyFileSynced_And_Memoized(FILE* f) {
+
 	char buffer[100];
-	for(;;) {
+	for (;;) {
 		pthread_mutex_lock(&mid);
 		int ret = fscanf(f, "%s\n", buffer);
 		pthread_mutex_unlock(&mid);
-		if(ret == EOF) {
+		if (ret == EOF) {
+			return;
+		}
+		unsigned tmp = (unsigned) atoi(buffer);
+		print_prime_factorsMemoized(tmp);
+#ifdef MAP
+		printf("%s\n", buffer);
+#endif
+	}
+	fclose(f);
+}
+
+void readMyFileSynced(FILE* f) {
+
+	char buffer[100];
+	for (;;) {
+		pthread_mutex_lock(&mid);
+		int ret = fscanf(f, "%s\n", buffer);
+		pthread_mutex_unlock(&mid);
+		if (ret == EOF) {
 			return;
 		}
 		unsigned tmp = (unsigned) atoi(buffer);
@@ -169,18 +241,18 @@ void readMyFileThreaded2(char* fname) {
 	f = fopen(fname, "r");
 
 	char buffer[100];
-	
+
 	pthread_t tid, tid2;
-	
+
 	pthread_mutex_init(&mid, NULL);
 
 	pthread_create(&tid2, NULL, readMyFileSynced, (void*) f);
 
 	pthread_create(&tid, NULL, readMyFileSynced, (void*) f);
-	
+
 	pthread_join(tid, NULL);
 	pthread_join(tid2, NULL);
-	
+
 	pthread_mutex_destroy(&mid);
 	fclose(f);
 }
@@ -190,20 +262,43 @@ void readMyFileThreadedN(char* fname, unsigned int N) {
 	f = fopen(fname, "r");
 
 	char buffer[100];
-	
+
 	pthread_t tids[N];
-	
+
 	pthread_mutex_init(&mid, NULL);
-	
+
 	int ij;
-	for(ij = 0; ij < N; ij++) {
+	for (ij = 0; ij < N; ij++) {
 		pthread_create(&(tids[ij]), NULL, readMyFileSynced, (void*) f);
 	}
-	
-	for(ij = 0; ij < N; ij++) {
+
+	for (ij = 0; ij < N; ij++) {
 		pthread_join(tids[ij], NULL);
 	}
-	
+
+	pthread_mutex_destroy(&mid);
+	fclose(f);
+}
+
+void readMyFileThreadedN_And_Memoized(char* fname, unsigned int N) {
+	FILE *f;
+	f = fopen(fname, "r");
+
+	char buffer[100];
+
+	pthread_t tids[N];
+
+	pthread_mutex_init(&mid, NULL);
+
+	int ij;
+	for (ij = 0; ij < N; ij++) {
+		pthread_create(&(tids[ij]), NULL, readMyFileThreadedN_And_Memoized, (void*) f);
+	}
+
+	for (ij = 0; ij < N; ij++) {
+		pthread_join(tids[ij], NULL);
+	}
+
 	pthread_mutex_destroy(&mid);
 	fclose(f);
 }
@@ -264,6 +359,7 @@ int main(int argc, char** argv) {
 	
 		readMyFile("numbers.txt");
 	 */
-	readMyFileThreadedN("numbers2.txt", 4);
+	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
+	pthread_exit(NULL);
 	return 0;
 }
