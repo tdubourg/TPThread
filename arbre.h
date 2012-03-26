@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #define MAXMOT 256
-#define MAP 1
+
 #define H_NOEUD_VIDE -1
 #define MAX_FACTORS 30
 
