@@ -5,7 +5,7 @@ int main(int argc, char** argv) {
 #ifdef MAP
 	printf("Beginning\n");
 #endif
-	readMyFileThreadedN_And_Memoized("numbers2.txt", 1);
+	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
 #ifdef MAP
 	printf("Terminé1\n");
 #endif
