@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 	for (i = 0; i < x; i++) {
 		long long unsigned int l;
 
-		unsigned int *p = (void *) &l;
+		unsigned int *p = (unsigned int *) &l;
 
 		// Caveat Emptor: the RNG is intentionnaly left unseeded, so
 		// as to get reproducible results.

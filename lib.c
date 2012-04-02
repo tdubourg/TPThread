@@ -1,6 +1,8 @@
 #include "lib.h"
 
-
+static pthread_mutex_t mid, mid2;
+static t_arbre* MEM_TREE;
+static long long unsigned shift_pos = 0;
 
 /************************* CORE FUNCTIONS ************************/
 long long is_prime(long long unsigned p) {
@@ -95,7 +97,7 @@ void print_prime_factors(long long unsigned n) {
 	printf("\n");
 }
 
-long long unsigned get_prime_factors(long long unsigned n, int* factors) {
+long long unsigned get_prime_factors(long long unsigned n, long long unsigned* factors) {
 	t_arbre* already;
 
 	long long unsigned index = 0;
@@ -224,7 +226,7 @@ long long unsigned get_prime_factors(long long unsigned n, int* factors) {
 
 void print_prime_factorsMemoized(long long unsigned n) {
 	long long j, k;
-	long long factors[MAX_FACTORS];
+	long long unsigned factors[MAX_FACTORS];
 
 	/*if (is_prime(n)) {
 		printf(" %llu\n", n);
@@ -256,16 +258,27 @@ void readMyFile(char* fname) {
 	fclose(f);
 }
 
-void readMyreadMyFileSynced_And_Memoized(FILE* f) {
+void readMyreadMyFileSynced_And_Memoized(char* f) {
 
-	char buffer[100];
+	char* buffer;
+
 	for (;;) {
 		pthread_mutex_lock(&mid);
-		long long ret = fscanf(f, "%s\n", buffer);
-		pthread_mutex_unlock(&mid);
-		if (ret == EOF) {
+		//long long ret = fscanf(f, "%s\n", buffer);
+		//* New way : using memory !
+		buffer = strtok(f+shift_pos, "\n");
+#ifdef MAP
+		printf("Buffer=%s\n", buffer);
+#endif
+		if (buffer == NULL) {//* Over !
+			pthread_mutex_unlock(&mid);//* Important line !!!
+#ifdef MAP
+			printf("Over !\n");
+#endif
 			return;
 		}
+		shift_pos += strlen(buffer)+1;
+		pthread_mutex_unlock(&mid);
 		long long unsigned tmp = (long long unsigned) atoll(buffer);
 		print_prime_factorsMemoized(tmp);
 #ifdef MAP
@@ -370,12 +383,24 @@ void readMyFileThreadedN(char* fname, long long unsigned N) {
 void readMyFileThreadedN_And_Memoized(char* fname, long long unsigned N) {
 
 	//* Initialisation de la structure de données :
-	MEM_TREE = creer_arbre(0, NULL, NULL, NULL);
+	MEM_TREE = creer_arbre(6000, NULL, NULL, NULL);
 
 	FILE *f;
 	f = fopen(fname, "r");
 
-	char buffer[100];
+	//* Putting the file into memory in order to be faster :
+
+	fseek(f, 0, SEEK_END);
+	long long unsigned size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	char*result = (char *)malloc(sizeof(char)*(size+1));
+	if (size != fread(result, sizeof(char), size, f))
+	{
+		printf("Error reading file !");
+		return;// Error in file read, avort !
+	}
+	fclose(f);
+	result[size] = '\0';
 
 	pthread_t tids[N];
 
@@ -384,16 +409,16 @@ void readMyFileThreadedN_And_Memoized(char* fname, long long unsigned N) {
 
 	long long ij;
 	for (ij = 0; ij < N; ij++) {
-		pthread_create(&(tids[ij]), NULL, readMyreadMyFileSynced_And_Memoized, (void*) f);
+		pthread_create(&(tids[ij]), NULL, readMyreadMyFileSynced_And_Memoized, (void*) result);
 	}
 
 	for (ij = 0; ij < N; ij++) {
 		pthread_join(tids[ij], NULL);
 	}
 
+	free(result);
 	pthread_mutex_destroy(&mid);
 	pthread_mutex_destroy(&mid2);
-	fclose(f);
 	detruire_arbre(MEM_TREE);
 }
 

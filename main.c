@@ -5,13 +5,9 @@ int main(int argc, char** argv) {
 #ifdef MAP
 	printf("Beginning\n");
 #endif
-	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
+	readMyFileThreadedN_And_Memoized("numbers2-64b.txt", 4);
 #ifdef MAP
 	printf("Terminé1\n");
-#endif
-	detruire_arbre(MEM_TREE);
-#ifdef MAP
-	printf("Terminé2\n");
 #endif
 	pthread_exit(NULL);
 #ifdef MAP

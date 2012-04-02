@@ -38,7 +38,7 @@ extern "C" {
 	long long unsigned elt;
 } t_element;*/
 
-typedef int t_element;
+typedef long long unsigned t_element;
 
 typedef struct t_noeud {
 	//t_element valeur;
