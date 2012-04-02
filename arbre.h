@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#ifdef MAP
+#define MAPTREE
+#endif
 
 #include <stdlib.h>
 #include <math.h>

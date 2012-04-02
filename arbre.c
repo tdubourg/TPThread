@@ -6,6 +6,7 @@
 #include "arbre.h"
 
 // cr�ation d'un arbre binaire
+
 t_arbre *creer_arbre(t_element e, t_element* valeur, t_arbre *g, t_arbre *d) {
 	t_arbre *arbre = (t_arbre*) malloc(sizeof (t_arbre));
 	arbre->gauche = g;
@@ -23,6 +24,8 @@ t_element detruire_noeud_arbre(t_arbre *noeud) {
 	//t_element el = (t_element ) malloc(sizeof(t_element));
 	//*el = *(noeud->cle);
 	t_element el = noeud->cle;
+	free(noeud->valeur);
+	noeud->valeur = NULL;
 	free(noeud);
 	return el;
 }
@@ -70,7 +73,7 @@ t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, unsigned v_s
 
 	t_arbre *n = creer_arbre(v, factors, NULL, NULL);
 	n->val_size = v_size;
-	
+
 	if (left) {
 		prec->gauche = n;
 	} else {
@@ -104,6 +107,9 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 	t_arbre* curr = a;
 	while (curr != NULL) {
 		t_element e = curr->cle;
+#ifdef MAPTREE
+		printf("curr elem key : %u", e);
+#endif
 		if (e > v) {
 			// On descend dans la branche gauche de ce noeud
 			// car la valeur du noeud courant est plus grande
@@ -116,12 +122,16 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 			return curr;
 		}
 	}
+#ifdef MAPTREE
+		printf("NOT FOUND \n");
+#endif
 	return curr;
 }
 
 
 
 // calculer la hauteur des noeuds du t_arbre a
+
 int calculer_hauteur(t_arbre *a) {
 	if (a->gauche == NULL && a->droit == NULL) {
 		a->hauteur = 0;
@@ -142,6 +152,7 @@ int calculer_hauteur(t_arbre *a) {
 
 
 // afficher l'arbre et la hauteur des noeuds
+
 void afficher_arbre(t_arbre *a) {
 	static int hauteur_courante = 0;
 	hauteur_courante++;
