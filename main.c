@@ -5,7 +5,9 @@
 //#define MAP
 
 #define MAX_NUMBERS MAX_NUMBERS
-#define EoT -42
+#define EoT (-42)
+
+//#define MAP
 
 static pthread_mutex_t mid;
 static t_arbre* MEM_TREE;
@@ -103,21 +105,25 @@ void print_prime_factors(unsigned n) {
 	printf("\n");
 }
 
-unsigned get_prime_factors(unsigned n, unsigned* factors) {
+unsigned get_prime_factors(unsigned n, int* factors) {
 	t_arbre* already;
 
 	unsigned index = 0;
 	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
 	unsigned lastone = 0;
 	unsigned n_prev = n;
-	factors[0] = EoT;
+	unsigned orig = n;
+	//factors[0] = EoT;
 	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
 		if (n != n_prev) {
 			already = rechercher_arbre(MEM_TREE, n);
 			if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
-				unsigned index2 = index;
-				while (already->valeur[index2] != EoT) {
-					factors[index++] = already->valeur[index2++];
+#ifdef MAP
+				printf("%u has already been memoized, using the values");
+#endif
+				unsigned index2 = 0;
+				for (index2 = 0; index2 < already->val_size; index2++) {
+					factors[index++] = already->valeur[index2];
 				}
 				return index;
 			}
@@ -143,20 +149,13 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			}
 			continue;
 		}
-		//* Memoization of the current decomposition for current n value :
-		t_element* factors_cpy = (t_element*) malloc(sizeof(t_element)*MAX_FACTORS);
-		memcpy(factors_cpy, factors, sizeof(t_element)*MAX_FACTORS);//* copy the factors[] array into factors_cpy[] array
-		MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy);
-		
 
-		//lastone = 7;
 		unsigned i;
-		//unsigned stop = 0;
 		n_prev = n;
 		for (i = lastone + pas_i; i <= n;) {//* utilisation d'un pas alternatif
 			if (!(n % i) && is_prime(i)) {
 				factors[index++] = i;
-				factors[index] = EoT;		
+				factors[index] = EoT;
 				n /= i;
 				lastone = i;
 			} else {//* on ne met à jour la variable de parcours qu'une fois qu'on a "épuisé" un possible facteur on crée une sous-boucle artificielle en moins lourd
@@ -165,12 +164,28 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			}
 		}
 	}
+#ifdef MAP
+	printf("Memoizing factors decomposition of %u\n", orig);
+#endif
+	//* Memoization of the current decomposition for current n value :
+	t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * MAX_FACTORS);
+	memcpy(factors_cpy, factors, sizeof (t_element) * index); //* copy the factors[] array into factors_cpy[] array
+
+#ifdef MAP
+	printf("We are going to insert in the tree :\n");
+	int ijk = 0;
+	for (; ijk < index; ijk++) {
+		printf("%u ", factors_cpy[ijk]);
+	}
+	printf("\nover\n");
+#endif
+	MEM_TREE = inserer_arbre(MEM_TREE, orig, factors_cpy, index);
 	return index;
 }
 
 void print_prime_factorsMemoized(unsigned n) {
 	int j, k;
-	unsigned int factors[MAX_FACTORS];
+	int factors[MAX_FACTORS];
 
 	if (is_prime(n)) {
 		printf(" %u\n", n);
@@ -314,7 +329,7 @@ void readMyFileThreadedN(char* fname, unsigned int N) {
 }
 
 void readMyFileThreadedN_And_Memoized(char* fname, unsigned int N) {
-	
+
 	//* Initialisation de la structure de données :
 	MEM_TREE = creer_arbre(0, NULL, NULL, NULL);
 
@@ -387,18 +402,14 @@ int testPrintPrimeFactors() {
 }
 
 int main(int argc, char** argv) {
-	/*	if(testIsPrime(100)) {
-			printf("Test succeeded\n");
-		} else {
-			printf("Test failed\n");
-		}
-	
-		testPrintPrimeFactors();
-	
-		readMyFile("numbers.txt");
-	 */
-	//print_prime_factors(27166);
-	readMyFileThreadedN_And_Memoized("numbers.txt", 1);
+#ifdef MAP
+	printf("Beginning\n");
+#endif
+	readMyFileThreadedN_And_Memoized("numbers2.txt", 4);
+
+#ifdef MAP
+	printf("Terminé\n");
+#endif
 	pthread_exit(NULL);
 	return 0;
 }

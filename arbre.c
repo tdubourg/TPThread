@@ -45,7 +45,7 @@ void detruire_arbre(t_arbre *a) {
 
 // insertion d'un t_element v dans un t_arbre a, cette fonction renvoie le nouvel arbre
 
-t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors) {
+t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, unsigned v_size) {
 	t_arbre* curr = a;
 	t_arbre *prec = NULL;
 	int left = 0;
@@ -69,6 +69,7 @@ t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors) {
 	}
 
 	t_arbre *n = creer_arbre(v, factors, NULL, NULL);
+	n->val_size = v_size;
 	
 	if (left) {
 		prec->gauche = n;

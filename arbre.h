@@ -35,18 +35,19 @@ extern "C" {
 	unsigned elt;
 } t_element;*/
 
-typedef unsigned int t_element;
+typedef int t_element;
 
 typedef struct t_noeud {
 	//t_element valeur;
 	t_element cle;
 	t_element* valeur;
+	unsigned val_size;
 	int hauteur;
 	struct t_noeud *gauche;
 	struct t_noeud *droit;
 } t_arbre;
 	
-t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors); // Déclaration, utile pour la suite, la définitione est plus bas.
+t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, unsigned v_size); // Déclaration, utile pour la suite, la définitione est plus bas.
 t_arbre *equilibrer_arbre(t_arbre *a);
 t_arbre *creer_arbre(t_element e, t_element* valeur, t_arbre *g, t_arbre *d);
 
