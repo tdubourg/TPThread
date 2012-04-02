@@ -24,8 +24,8 @@ t_element detruire_noeud_arbre(t_arbre *noeud) {
 	//t_element el = (t_element ) malloc(sizeof(t_element));
 	//*el = *(noeud->cle);
 	t_element el = noeud->cle;
-	free(noeud->valeur);
-	noeud->valeur = NULL;
+	//free(noeud->valeur);
+	//noeud->valeur = NULL;
 	free(noeud);
 	return el;
 }
@@ -118,7 +118,7 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 		} else if (e < v) {
 			// On descend dans l'arbre droit cette fois
 			curr = curr->droit;
-		} else {// == 
+		} else {// ==
 			return curr;
 		}
 	}
