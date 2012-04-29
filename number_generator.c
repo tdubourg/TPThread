@@ -11,12 +11,9 @@ int main(int argc, char** argv) {
 	for (i = 0; i < x; i++) {
 		unsigned int l;
 
-		unsigned int *p = (unsigned int *) &l;
-
 		// Caveat Emptor: the RNG is intentionnaly left unseeded, so
 		// as to get reproducible results.
-		p[0] = random();
-		p[1] = random();
+		l = random();
 
 		printf("%u\n", l);
 	}

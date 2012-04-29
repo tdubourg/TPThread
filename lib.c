@@ -241,7 +241,6 @@ void print_prime_factorsMemoized(unsigned n) {
 	for (j = 0; j < k; j++) {
 		printf("%u ", factors[j]);
 	}
-
 	printf("\n");
 }
 
