@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	for (i = 0; i < x; i++) {
-		long long unsigned int l;
+		int unsigned int l;
 
 		unsigned int *p = (unsigned int *) &l;
 
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 		p[0] = random();
 		p[1] = random();
 
-		printf("%llu\n", l);
+		printf("%u\n", l);
 	}
 
 	return 0;

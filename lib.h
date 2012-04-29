@@ -27,21 +27,41 @@ extern "C" {
 
 #define IN_RANGE(n) ((n) < MAX_VALUE_IN_TREE && (n) > MIN_VALUE_IN_TREE)
 
-long long testPrintPrimeFactors();
-long long testIsPrime(long long max);
-void readMyFileThreadedN_And_Memoized(char* fname, long long unsigned N);
-void readMyFileThreadedN(char* fname, long long unsigned N);
-void readMyFileThreaded2(char* fname);
+int testPrintPrimeFactors();
+
+int testIsPrime(int max);
+
+void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N);
+
+//* Use of 2 threads, doing pthread_join() after each computation
 void readMyFileThreaded1(char* fname);
+
+
+//* Reads a file with mutex sync, to be able to be executed from multiple threads simultaneously
+void readMyFileThreaded2(char* fname);
+
+//* Does the same thing as readMyFileThreaded2() but with N threads
+void readMyFileThreadedN(char* fname, int unsigned N);
+
+
 void print_prime_factors_wrapper(void *i);
+
 void readMyFileSynced(FILE* f);
+
 void readMyreadMyFileSynced_And_Memoized(char* f);
+
+//* Reads a file with a int32 on each line. Displays the prime factors decomposition of each one
 void readMyFile(char* fname);
-void print_prime_factorsMemoized(long long unsigned n);
-long long unsigned get_prime_factors(long long unsigned n, long long unsigned* factors);
-void print_prime_factors(long long unsigned n);
-long long print_prime_factors_nodisp(long long unsigned n, long long startresearch, long long pas_i);
-long long is_prime(long long unsigned p);
+
+void print_prime_factorsMemoized(int unsigned n);
+
+int unsigned get_prime_factors(int unsigned n, int unsigned* factors);
+
+//* Prints the prime factors decomposition of a given unsigned 32bits number (displays the decomposition)
+void print_prime_factors(int unsigned n);
+
+//* Test on a single number
+int is_prime(int unsigned p);
 
 
 

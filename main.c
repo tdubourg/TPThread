@@ -1,17 +1,46 @@
 #define MAP
 #include "lib.h"
 
+#define TESTFILE "callgrind-60-int32.txt"
+
+void exercice1() {
+	printf("\n ------------ Exercice 1 ------------ \n");
+	if (!testIsPrime(50)) {
+		printf("isPrime() went wrong.\n");
+		return;
+	}
+	testPrintPrimeFactors();
+	printf("\n");
+	readMyFile(TESTFILE);
+}
+
+
+void exercice2() {
+	printf("\n ------------ Exercice 2 ------------ \n");
+	readMyFileThreaded1(TESTFILE);
+}
+
+void exercice3() {
+	printf("\n ------------ Exercice 3 ------------ \n");
+	readMyFileThreaded2(TESTFILE);
+}
+
 int main(int argc, char** argv) {
-#ifdef MAP
-	printf("Beginning\n");
-#endif
-	readMyFileThreadedN_And_Memoized("numbers2-64b.txt", 4);
-#ifdef MAP
-	printf("Terminé1\n");
-#endif
+//	readMyFileThreadedN_And_Memoized("smallnumb.txt", 4);
+	//* *************** Exercice 1 ************
+	exercice1();
+
+	//* *************** Exercice 2 ************
+	exercice2();
+
+	//* *************** Exercice 3 ************
+	exercice3();
+
+	//* *************** Exercice 4 ************
+	exercice1();
+
+//	pthread_exit(NULL);
+//	printf("\n\n%u tests run, %u tests failed, %u tests succeeded\n", total, failed, total-failed);
 	pthread_exit(NULL);
-#ifdef MAP
-	printf("Test....\n");
-#endif
 	return 0;
 }

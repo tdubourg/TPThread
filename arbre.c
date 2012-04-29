@@ -48,10 +48,10 @@ void detruire_arbre(t_arbre *a) {
 
 // insertion d'un t_element v dans un t_arbre a, cette fonction renvoie le nouvel arbre
 
-t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, long long unsigned v_size) {
+t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, int unsigned v_size) {
 	t_arbre* curr = a;
 	t_arbre *prec = NULL;
-	long long left = 0;
+	int left = 0;
 	while (curr != NULL) {
 		t_element e = curr->cle;
 		if (e > v) {
@@ -108,7 +108,7 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 	while (curr != NULL) {
 		t_element e = curr->cle;
 #ifdef MAPTREE
-		printf("curr elem key : %llu", e);
+		printf("curr elem key : %u", e);
 #endif
 		if (e > v) {
 			// On descend dans la branche gauche de ce noeud
@@ -132,7 +132,7 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 
 // calculer la hauteur des noeuds du t_arbre a
 
-long long calculer_hauteur(t_arbre *a) {
+int calculer_hauteur(t_arbre *a) {
 	if (a->gauche == NULL && a->droit == NULL) {
 		a->hauteur = 0;
 	} else {
@@ -140,7 +140,7 @@ long long calculer_hauteur(t_arbre *a) {
 			a->hauteur = 1 + calculer_hauteur(a->gauche);
 		}
 		if (a->droit != NULL) {
-			long long curr;
+			int curr;
 			curr = 1 + calculer_hauteur(a->droit); //on prend la valeur maximum de la hauteur.
 			if (curr > a->hauteur) {
 				a->hauteur = curr;
@@ -154,13 +154,13 @@ long long calculer_hauteur(t_arbre *a) {
 // afficher l'arbre et la hauteur des noeuds
 
 void afficher_arbre(t_arbre *a) {
-	static long long hauteur_courante = 0;
+	static int hauteur_courante = 0;
 	hauteur_courante++;
-	long long i;
+	int i;
 	for (i = 1; i <= hauteur_courante; i++) {
 		printf("\t");
 	}
-	printf("(Noeud) Cle : %llu ; hauteur : %ll\n", a->cle, a->hauteur);
+	printf("(Noeud) Cle : %u ; hauteur : %u\n", a->cle, a->hauteur);
 	if (a->gauche != NULL) {
 		for (i = 1; i <= hauteur_courante; i++) {
 			printf("\t");
@@ -179,8 +179,8 @@ void afficher_arbre(t_arbre *a) {
 }
 
 t_arbre *maj_hauteur_depuis_enfants(t_arbre *x) {
-	long long hauteur_gauche = (x->gauche != NULL) ? x->gauche->hauteur : H_NOEUD_VIDE;
-	long long hauteur_droit = (x->droit != NULL) ? x->droit->hauteur : H_NOEUD_VIDE;
+	int hauteur_gauche = (x->gauche != NULL) ? x->gauche->hauteur : H_NOEUD_VIDE;
+	int hauteur_droit = (x->droit != NULL) ? x->droit->hauteur : H_NOEUD_VIDE;
 
 	if (x->gauche == NULL && x->droit == NULL) { //* Si x est une feuille : 0
 		x->hauteur = 0;
@@ -204,7 +204,7 @@ t_arbre *rotation_droite(t_arbre *y) {
 	//* On MàJ celles de x et y à partir de celles de A, B et C
 	y = maj_hauteur_depuis_enfants(y);
 
-	long long hauteur_droit = (x->droit != NULL) ? x->droit->hauteur : H_NOEUD_VIDE;
+	int hauteur_droit = (x->droit != NULL) ? x->droit->hauteur : H_NOEUD_VIDE;
 	x->hauteur = 1
 		+ ((hauteur_droit > x->hauteur) ? hauteur_droit : x->hauteur);
 
@@ -222,7 +222,7 @@ t_arbre *rotation_gauche(t_arbre *x) {
 	//* On MàJ celles de x et y à partir de celles de A, B et C
 	x = maj_hauteur_depuis_enfants(x);
 
-	long long hauteur_droit = (y->droit != NULL) ? y->droit->hauteur : H_NOEUD_VIDE;
+	int hauteur_droit = (y->droit != NULL) ? y->droit->hauteur : H_NOEUD_VIDE;
 	y->hauteur = 1
 		+ ((hauteur_droit > x->hauteur) ? hauteur_droit : x->hauteur);
 
@@ -232,12 +232,12 @@ t_arbre *rotation_gauche(t_arbre *x) {
 t_arbre *equilibrer_arbre(t_arbre *a) {
 	if (a->gauche != NULL && a->gauche->gauche != NULL) { // si x,y,a,b existent
 		// Possibilité d'une rotation droite, peut-on le faire ?
-		long long hauteur_B =
+		int hauteur_B =
 			(a->gauche->droit != NULL) ?
 			a->gauche->droit->hauteur : H_NOEUD_VIDE;
-		long long hauteur_C = (a->droit != NULL) ? a->droit->hauteur : H_NOEUD_VIDE;
-		long long hauteur_A = a->gauche->gauche->hauteur;
-		long long max = (hauteur_B > hauteur_C) ? hauteur_B : hauteur_C; // max(h(b), h(c))
+		int hauteur_C = (a->droit != NULL) ? a->droit->hauteur : H_NOEUD_VIDE;
+		int hauteur_A = a->gauche->gauche->hauteur;
+		int max = (hauteur_B > hauteur_C) ? hauteur_B : hauteur_C; // max(h(b), h(c))
 		while (hauteur_A >= max) { // si h(a) > max(h(b), h(c))
 			// Lancement d'une rotation droite :
 			a = rotation_droite(a);
@@ -256,12 +256,12 @@ t_arbre *equilibrer_arbre(t_arbre *a) {
 	}
 	if (a->droit != NULL && a->droit->droit != NULL) { // si x,y,c existent (on peut faire sans a et b, rotation_gauche() sait faire) //* @IMPORTANT : (by td) J'ai supposé que la condition appliquable pr la rotation droite (décrite ds l'énoncé) était appliquable pr la rotation gauche
 		// Possibilité d'une rotation gauche, peut-on le faire ?
-		long long hauteur_B =
+		int hauteur_B =
 			(a->droit->gauche != NULL) ?
 			a->droit->gauche->hauteur : H_NOEUD_VIDE;
-		long long hauteur_A = (a->gauche != NULL) ? a->gauche->hauteur : H_NOEUD_VIDE;
-		long long hauteur_C = a->droit->droit->hauteur;
-		long long max = (hauteur_B > hauteur_A) ? hauteur_B : hauteur_A; // max(h(b), h(a))
+		int hauteur_A = (a->gauche != NULL) ? a->gauche->hauteur : H_NOEUD_VIDE;
+		int hauteur_C = a->droit->droit->hauteur;
+		int max = (hauteur_B > hauteur_A) ? hauteur_B : hauteur_A; // max(h(b), h(a))
 		while (hauteur_C >= max) { // si h(c) > max(h(b), h(a))
 			// Lancement d'une rotation droite :
 			a = rotation_gauche(a);
