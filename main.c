@@ -1,7 +1,9 @@
-#define MAP
+//#define MAP
 #include "lib.h"
 
 #define TESTFILE "callgrind-60-int32.txt"
+#define N_THREAD 2
+
 
 void exercice1() {
 	printf("\n ------------ Exercice 1 ------------ \n");
@@ -25,6 +27,11 @@ void exercice3() {
 	readMyFileThreaded2(TESTFILE);
 }
 
+void exercice4() {
+	printf("\n ------------ Exercice 4 ------------ \n");
+	readMyFileThreadedN_And_Memoized(TESTFILE, N_THREAD);
+}
+
 int main(int argc, char** argv) {
 //	readMyFileThreadedN_And_Memoized("smallnumb.txt", 4);
 	//* *************** Exercice 1 ************
@@ -37,7 +44,7 @@ int main(int argc, char** argv) {
 	exercice3();
 
 	//* *************** Exercice 4 ************
-	exercice1();
+	exercice4();
 
 //	pthread_exit(NULL);
 //	printf("\n\n%u tests run, %u tests failed, %u tests succeeded\n", total, failed, total-failed);

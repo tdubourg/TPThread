@@ -12,12 +12,10 @@
 extern "C" {
 #endif
 
-
 #include <stdio.h>
 #include <math.h>
 #include <pthread.h>
 #include "arbre.h"
-//#define MAP
 
 #define MAX_NUMBERS MAX_NUMBERS
 #define EoT (-42)
@@ -31,8 +29,6 @@ int testPrintPrimeFactors();
 
 int testIsPrime(int max);
 
-void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N);
-
 //* Use of 2 threads, doing pthread_join() after each computation
 void readMyFileThreaded1(char* fname);
 
@@ -41,27 +37,32 @@ void readMyFileThreaded1(char* fname);
 void readMyFileThreaded2(char* fname);
 
 //* Does the same thing as readMyFileThreaded2() but with N threads
-void readMyFileThreadedN(char* fname, int unsigned N);
+void readMyFileThreadedN(char* fname, unsigned N);
 
 
-void print_prime_factors_wrapper(void *i);
+void *print_prime_factors_wrapper(void *i);
 
-void readMyFileSynced(FILE* f);
+//* Reads a file with multi-thread synchronization using mutex, in order to be called from multiple thread
+void *readMyFileSynced(void* aF);
 
-void readMyreadMyFileSynced_And_Memoized(char* f);
+//* Reads the file, puts it in RAM, launches the threads with callback = readMyFileFromMemorySynced_And_Memoized and the pointer to the file "in memory'
+void readMyFileThreadedN_And_Memoized(char* fname, unsigned N);
+
+//* After the file having been read and stored in memory, this functions goes through it like through a real file, but using RAM, so, faster
+void *readMyFileFromMemorySynced_And_Memoized(void* aF);
 
 //* Reads a file with a int32 on each line. Displays the prime factors decomposition of each one
 void readMyFile(char* fname);
 
-void print_prime_factorsMemoized(int unsigned n);
+void print_prime_factorsMemoized(unsigned n);
 
-int unsigned get_prime_factors(int unsigned n, int unsigned* factors);
+unsigned get_prime_factors(unsigned n, unsigned* factors);
 
 //* Prints the prime factors decomposition of a given unsigned 32bits number (displays the decomposition)
-void print_prime_factors(int unsigned n);
+void print_prime_factors(unsigned n);
 
 //* Test on a single number
-int is_prime(int unsigned p);
+int is_prime(unsigned p);
 
 
 

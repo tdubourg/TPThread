@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	for (i = 0; i < x; i++) {
-		int unsigned int l;
+		unsigned int l;
 
 		unsigned int *p = (unsigned int *) &l;
 

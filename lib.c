@@ -1,13 +1,15 @@
 #include "lib.h"
 
+#define STD_EXIT_THREAD_STATUS (void*)NULL
+
 static pthread_mutex_t mid, mid2;
 static t_arbre* MEM_TREE;
-static int unsigned shift_pos = 0;
+static unsigned shift_pos = 0;
 
 /************************* CORE FUNCTIONS ************************/
 
 //* Test on a single number
-int is_prime(int unsigned p) {
+int is_prime(unsigned p) {
 	if (p <= 3) {
 		return 1;
 	} else if (!p) {
@@ -31,7 +33,7 @@ int is_prime(int unsigned p) {
 }
 
 //* Inner function, used by print_prime_factors(). Do nearly the same but don't do display at the start
-static void print_prime_factors_nodisp(int unsigned n, int startresearch) {
+static void print_prime_factors_nodisp(unsigned n, int startresearch) {
 	if (!(n % 2)) {
 		printf(" %u", 2);
 		return print_prime_factors_nodisp(n / 2, 2);
@@ -65,7 +67,7 @@ static void print_prime_factors_nodisp(int unsigned n, int startresearch) {
 }
 
 //* Prints the prime factors decomposition of a given unsigned 32bits number (displays the decomposition)
-void print_prime_factors(int unsigned n) {
+void print_prime_factors(unsigned n) {
 	printf("%u:", n);
 	if (is_prime(n)) {
 		printf(" %u\n", n);
@@ -95,18 +97,19 @@ void print_prime_factors(int unsigned n) {
 	printf("\n");
 }
 
-//* Memoization things
-int unsigned get_prime_factors(int unsigned n, int unsigned* factors) {
+//* Memoization things :
+//* compute prime factors decomposition using memoization
+//* then puts everything in an array
+unsigned get_prime_factors(unsigned n, unsigned* factors) {
 	t_arbre* already;
 
-	int unsigned index = 0;
-	int unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
-	int unsigned lastone = 0;
-	int unsigned n_prev = n;
-	int unsigned orig = n;
-	int unsigned max = sqrt(n);
+	unsigned index = 0;
+	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
+	unsigned lastone = 0;
+	unsigned n_prev = n;
+	unsigned max = sqrt(n);
 	unsigned char first_loop = 1;
-	//factors[0] = EoT;
+
 	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
 		if (!first_loop && IN_RANGE(n)) {
 #ifdef MAP
@@ -117,7 +120,7 @@ int unsigned get_prime_factors(int unsigned n, int unsigned* factors) {
 #ifdef MAP
 				printf("%u has already been memoized, using the values\n");
 #endif
-				int unsigned index2 = 0;
+				unsigned index2 = 0;
 				for (index2 = 0; index2 < already->val_size; index2++) {
 					factors[index++] = already->valeur[index2];
 				}
@@ -156,7 +159,7 @@ int unsigned get_prime_factors(int unsigned n, int unsigned* factors) {
 			}
 		}
 
-		int unsigned i;
+		unsigned i;
 		n_prev = n;
 		for (i = lastone + pas_i; i <= max;) {//* utilisation d'un pas alternatif
 			if (!(n % i)) {
@@ -167,11 +170,10 @@ int unsigned get_prime_factors(int unsigned n, int unsigned* factors) {
 				//lastone = i;
 				already = rechercher_arbre(MEM_TREE, n);
 				if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
-					printf("%u has already been memoized, using the values\n");
 #ifdef MAP
-					printf("%u has already been memoized, using the values\n");
+					printf("%u has already been memoized, using the values\n", n);
 #endif
-					int unsigned index2 = 0;
+					unsigned index2 = 0;
 					for (index2 = 0; index2 < already->val_size; index2++) {
 						factors[index++] = already->valeur[index2];
 					}
@@ -224,9 +226,9 @@ int unsigned get_prime_factors(int unsigned n, int unsigned* factors) {
 }
 
 //* Prints the prime factors decomposition of a given number, using memoization
-void print_prime_factorsMemoized(int unsigned n) {
+void print_prime_factorsMemoized(unsigned n) {
 	int j, k;
-	int unsigned factors[MAX_FACTORS];
+	unsigned factors[MAX_FACTORS];
 
 	k = get_prime_factors(n, factors);
 
@@ -245,7 +247,7 @@ void readMyFile(char* fname) {
 
 	char buffer[10];
 	while (fscanf(f, "%s\n", buffer) != EOF) {
-		int unsigned tmp = (int unsigned) atol(buffer);
+		unsigned tmp = (unsigned) atol(buffer);
 		print_prime_factors(tmp);
 #ifdef MAP
 		printf("%s\n", buffer);
@@ -254,15 +256,15 @@ void readMyFile(char* fname) {
 	fclose(f);
 }
 
-void readMyreadMyFileSynced_And_Memoized(char* f) {
-
+//* After the file having been read and stored in memory, this functions goes through it like through a real file, but using RAM, so, faster
+void *readMyFileFromMemorySynced_And_Memoized(void* aF) {
 	char* buffer;
+	char* file_in_memory = (char*) aF;
 
 	for (;;) {
 		pthread_mutex_lock(&mid);
-		//int ret = fscanf(f, "%s\n", buffer);
 		//* New way : using memory !
-		buffer = strtok(f+shift_pos, "\n");
+		buffer = strtok(file_in_memory+shift_pos, "\n");
 #ifdef MAP
 		printf("Buffer=%s\n", buffer);
 #endif
@@ -271,20 +273,21 @@ void readMyreadMyFileSynced_And_Memoized(char* f) {
 #ifdef MAP
 			printf("Over !\n");
 #endif
-			return;
+			return STD_EXIT_THREAD_STATUS;
 		}
 		shift_pos += strlen(buffer)+1;
 		pthread_mutex_unlock(&mid);
-		int unsigned tmp = (int unsigned) atol(buffer);
+		unsigned tmp = (unsigned) atol(buffer);
 		print_prime_factorsMemoized(tmp);
 #ifdef MAP
 		printf("%s\n", buffer);
 #endif
 	}
-	fclose(f);
+	return STD_EXIT_THREAD_STATUS;
 }
 
-void readMyFileSynced(FILE* f) {
+void* readMyFileSynced(void* aF) {
+	FILE *f = (FILE*) aF;
 
 	char buffer[100];
 	for (;;) {
@@ -292,20 +295,22 @@ void readMyFileSynced(FILE* f) {
 		int ret = fscanf(f, "%s\n", buffer);
 		pthread_mutex_unlock(&mid);
 		if (ret == EOF) {
-			return;
+			return STD_EXIT_THREAD_STATUS;
 		}
-		int unsigned tmp = (int unsigned) atol(buffer);
+		unsigned tmp = (unsigned) atol(buffer);
 		print_prime_factors(tmp);
 #ifdef MAP
 		printf("%s\n", buffer);
 #endif
 	}
 	fclose(f);
+	return STD_EXIT_THREAD_STATUS;
 }
 
-void print_prime_factors_wrapper(void *i) {
-	int unsigned *p = (int unsigned*) i;
+void * print_prime_factors_wrapper(void *i) {
+	unsigned *p = (unsigned*) i;
 	print_prime_factors(*p);
+	return STD_EXIT_THREAD_STATUS;
 }
 
 void readMyFileThreaded1(char* fname) {
@@ -314,13 +319,13 @@ void readMyFileThreaded1(char* fname) {
 
 	char buffer[100];
 	while (fscanf(f, "%s\n", buffer) != EOF) {
-		int unsigned tmp = (int unsigned) atol(buffer);
+		unsigned tmp = (unsigned) atol(buffer);
 		pthread_t tid, tid2;
 
-		pthread_create(&tid, NULL, print_prime_factors_wrapper, (void*) &tmp);
+		pthread_create(&tid, NULL, print_prime_factors_wrapper, (void*) (&tmp));
 		if (fscanf(f, "%s\n", buffer) != EOF) {
-			int unsigned tmp2 = (int unsigned) atol(buffer);
-			pthread_create(&tid2, NULL, print_prime_factors_wrapper, (void*) &tmp2);
+			unsigned tmp2 = (unsigned) atol(buffer);
+			pthread_create(&tid2, NULL, print_prime_factors_wrapper, (void*) (&tmp2));
 			pthread_join(tid2, NULL);
 		}
 		pthread_join(tid, NULL);
@@ -336,8 +341,6 @@ void readMyFileThreaded1(char* fname) {
 void readMyFileThreaded2(char* fname) {
 	FILE *f;
 	f = fopen(fname, "r");
-
-	char buffer[100];
 
 	pthread_t tid, tid2;
 
@@ -355,11 +358,9 @@ void readMyFileThreaded2(char* fname) {
 }
 
 //* Does the same thing as readMyFileThreaded2() but with N threads
-void readMyFileThreadedN(char* fname, int unsigned N) {
+void readMyFileThreadedN(char* fname, unsigned N) {
 	FILE *f;
 	f = fopen(fname, "r");
-
-	char buffer[100];
 
 	pthread_t tids[N];
 
@@ -378,7 +379,8 @@ void readMyFileThreadedN(char* fname, int unsigned N) {
 	fclose(f);
 }
 
-void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N) {
+//* Reads the file, puts it in RAM, launches the threads with callback = readMyFileFromMemorySynced_And_Memoized and the pointer to the file "in memory'
+void readMyFileThreadedN_And_Memoized(char* fname, unsigned N) {
 
 	//* Initialisation de la structure de données :
 	MEM_TREE = creer_arbre(6000, NULL, NULL, NULL);
@@ -386,9 +388,9 @@ void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N) {
 	FILE *f;
 	f = fopen(fname, "r");
 
-	//* Putting the file into memory in order to be faster :
+	//* ----------- Putting the file into memory in order to be faster : -------------------
 	fseek(f, 0, SEEK_END);
-	int unsigned size = ftell(f);
+	unsigned size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	char*result = (char *)malloc(sizeof(char)*(size+1));
 	if (size != fread(result, sizeof(char), size, f))
@@ -397,9 +399,10 @@ void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N) {
 		return;// Error in file read, abort !
 	}
 	fclose(f);
-	//*** END OF PUTTING THE FILE IN MEMORY
+	//*** ----------- END OF PUTTING THE FILE IN MEMORY -------------------
 	result[size] = '\0';
 
+	//* ----------- Launching the threads --------------------------------
 	pthread_t tids[N];
 
 	pthread_mutex_init(&mid, NULL);
@@ -407,13 +410,15 @@ void readMyFileThreadedN_And_Memoized(char* fname, int unsigned N) {
 
 	int ij;
 	for (ij = 0; ij < N; ij++) {
-		pthread_create(&(tids[ij]), NULL, readMyreadMyFileSynced_And_Memoized, (void*) result);
+		pthread_create(&(tids[ij]), NULL, readMyFileFromMemorySynced_And_Memoized, (void*) result);
 	}
 
+	//* ----------- Waiting for all the threads to finish -----------
 	for (ij = 0; ij < N; ij++) {
 		pthread_join(tids[ij], NULL);
 	}
 
+	//* ----------- Garbage collection -----------
 	free(result);
 	pthread_mutex_destroy(&mid);
 	pthread_mutex_destroy(&mid2);
