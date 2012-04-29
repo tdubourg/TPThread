@@ -30,7 +30,7 @@ void exercice3() {
 
 void exercice4() {
 	printf("\n ------------ Exercice 4 ------------ \n");
-	readMyFileThreadedN_And_Memoized(TESTFILE, 2);
+	readMyFileThreadedN_And_Memoized(TESTFILE, N_THREAD);
 }
 
 int main(int argc, char** argv) {

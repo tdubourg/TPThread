@@ -249,7 +249,7 @@ void readMyFile(char* fname) {
 	FILE *f;
 	f = fopen(fname, "r");
 
-	char buffer[10];
+	char buffer[50];
 	while (fscanf(f, "%s\n", buffer) != EOF) {
 		unsigned tmp = (unsigned) atol(buffer);
 		print_prime_factors(tmp);

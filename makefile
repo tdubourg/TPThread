@@ -7,14 +7,16 @@ CUSTOM_LIBS=
 ECHO=echo
 RM=rm
 RMFLAGS=-f
+CFLAGS=
+LNKFLAGS=
 
 %.o: %.cpp
 #	$(ECHO) compilation de $<
-	$(COMP) -c $< -o $@
+	$(COMP) $(CFLAGS)-c $< -o $@
 
 $(EXE): $(OBJ)
 	$(ECHO) $(EXE)
-	$(COMP) -o"$(EXE)" $(OBJ) $(CUSTOM_LIBS) $(LIBS)
+	$(COMP) $(LNKFLAGS) -o"$(EXE)" $(OBJ) $(CUSTOM_LIBS) $(LIBS)
 
 $(EFFACE):
 	$(RM) $(RMFLAGS) $(EXE) $(OBJ)
