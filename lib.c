@@ -50,11 +50,12 @@ static void print_prime_factors_nodisp(unsigned n, int startresearch) {
 	int pas_i = 4;
 	int i;
 	startresearch = (startresearch >= 7) ? startresearch : 7;
+	int max = sqrt(n) + 1;
 	//printf(" //startresearch=%u// ", startresearch);
-	for (i = startresearch; i <= n; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
+	for (i = startresearch; i < max; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 		if (!(n % i)) {
 			printf(" %u", i);
-			if (n > i) {
+			if (i < n) {
 				return print_prime_factors_nodisp(n / i, i);
 			}
 		}
@@ -64,6 +65,7 @@ static void print_prime_factors_nodisp(unsigned n, int startresearch) {
 		}
 #endif
 	}
+	printf(" %u", n);
 }
 
 //* Prints the prime factors decomposition of a given unsigned 32bits number (displays the decomposition)
@@ -82,7 +84,6 @@ void print_prime_factors(unsigned n) {
 		printf(" %u", 5);
 		print_prime_factors_nodisp(n / 5, 5);
 	} else {
-
 		int pas_j = 4;
 		int i;
 		for (i = 7; i < n; i += pas_j, pas_j = 6 - pas_j) {//* use of an alternative step
@@ -121,11 +122,13 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 				printf("%u has already been memoized, using the values\n");
 #endif
 				unsigned index2 = 0;
+				//* This loop copies the prime factors contained in the tree to the result
 				for (index2 = 0; index2 < already->val_size; index2++) {
 					factors[index++] = already->valeur[index2];
 				}
+				//* We insert the n decomposition in the tree, in n_prev is an "interesting number"
 				if(IN_RANGE(n_prev)) {
-					t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * MAX_FACTORS);
+					t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * (index));
 					memcpy(factors_cpy, factors, sizeof (t_element) * (index)); //* no plus one because index++ just before //* copy the factors[] array into factors_cpy[] array
 					pthread_mutex_lock(&mid2);
 					MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy, index); //* no plus one because index++ just before
@@ -174,11 +177,13 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 					printf("%u has already been memoized, using the values\n", n);
 #endif
 					unsigned index2 = 0;
+					//* Here, we just finish the function, we get the "factors" array ready to be returned
 					for (index2 = 0; index2 < already->val_size; index2++) {
 						factors[index++] = already->valeur[index2];
 					}
+					//* If this decomposition (the complete one of n) is to be stored, we store it :
 					if(IN_RANGE(n_prev)) {
-						t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * MAX_FACTORS);
+						t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * (index + 1));
 						memcpy(factors_cpy, factors, sizeof (t_element) * (index + 1)); //* copy the factors[] array into factors_cpy[] array
 						pthread_mutex_lock(&mid2);
 						MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy, index + 1);
@@ -206,7 +211,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 #endif
 		//* Memoization of the current decomposition for current n value :
 		if(IN_RANGE(curr)) {
-			t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * MAX_FACTORS);
+			t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * (memo + 1));
 			memcpy(factors_cpy, factors, sizeof (t_element) * (memo + 1)); //* copy the factors[] array into factors_cpy[] array
 
 	#ifdef MAP

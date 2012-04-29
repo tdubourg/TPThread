@@ -23,12 +23,6 @@ extern "C" {
 #include <sys/time.h>
 #include <unistd.h>
 
-#ifdef CPP
-//* Note : utilisable uniquement en C++, désactivé ici
-#include <chrono>
-#include "iostream"
-#endif
-
 #define MAXMOT 256
 
 #define H_NOEUD_VIDE -1
@@ -41,7 +35,6 @@ extern "C" {
 typedef unsigned t_element;
 
 typedef struct t_noeud {
-	//t_element valeur;
 	t_element cle;
 	t_element* valeur;
 	unsigned val_size;
@@ -54,6 +47,7 @@ t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, unsigned v_s
 t_arbre *equilibrer_arbre(t_arbre *a);
 t_arbre *creer_arbre(t_element e, t_element* valeur, t_arbre *g, t_arbre *d);
 void detruire_arbre(t_arbre *a);
+t_arbre *rechercher_arbre(t_arbre *a, t_element v);
 
 #ifdef	__cplusplus
 }

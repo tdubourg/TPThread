@@ -1,4 +1,5 @@
 //#define MAP
+//#define MAPTREE
 #include "lib.h"
 
 #define TESTFILE "callgrind-60-int32.txt"
@@ -6,6 +7,7 @@
 
 
 void exercice1() {
+//	sleep(1);
 	printf("\n ------------ Exercice 1 ------------ \n");
 	if (!testIsPrime(50)) {
 		printf("isPrime() went wrong.\n");
@@ -18,18 +20,21 @@ void exercice1() {
 
 
 void exercice2() {
+//	sleep(1);
 	printf("\n ------------ Exercice 2 ------------ \n");
 	readMyFileThreaded1(TESTFILE);
 }
 
 void exercice3() {
+//	sleep(10);
 	printf("\n ------------ Exercice 3 ------------ \n");
 	readMyFileThreaded2(TESTFILE);
 }
 
 void exercice4() {
+//	sleep(10);
 	printf("\n ------------ Exercice 4 ------------ \n");
-	readMyFileThreadedN_And_Memoized(TESTFILE, N_THREAD);
+	readMyFileThreadedN_And_Memoized(TESTFILE, 1);
 }
 
 int main(int argc, char** argv) {

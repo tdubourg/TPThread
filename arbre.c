@@ -24,13 +24,13 @@ t_element detruire_noeud_arbre(t_arbre *noeud) {
 	//t_element el = (t_element ) malloc(sizeof(t_element));
 	//*el = *(noeud->cle);
 	t_element el = noeud->cle;
-	//free(noeud->valeur);
-	//noeud->valeur = NULL;
+	free(noeud->valeur);
+	noeud->valeur = NULL;
 	free(noeud);
 	return el;
 }
 
-// destruction d'un arbre binairegedit
+// destruction d'un arbre binaire
 
 void detruire_arbre(t_arbre *a) {
 	//* Si l'arbre a des sous arbres, on détruit d'abord récursivement les sous arbres :
@@ -67,6 +67,8 @@ t_arbre *inserer_arbre(t_arbre *a, t_element v, t_element* factors, unsigned v_s
 			curr = curr->droit;
 			left = 0;
 		} else {//* l'élément existe déjà ds l'arbre on peut pas insérer
+			//* Destruction des données du noeud, vu qu'elles ne seront jamais insérées, elle ne servent à rien :
+			free(factors);
 			return a;
 		}
 	}
@@ -119,13 +121,16 @@ t_arbre *rechercher_arbre(t_arbre *a, t_element v) {
 			// On descend dans l'arbre droit cette fois
 			curr = curr->droit;
 		} else {// ==
+#ifdef MAPTREE
+			printf("We found the number : %u == %u", v, curr->cle);
+#endif
 			return curr;
 		}
 	}
 #ifdef MAPTREE
 		printf("NOT FOUND \n");
 #endif
-	return curr;
+	return NULL;
 }
 
 
