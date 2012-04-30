@@ -32,13 +32,11 @@ int testIsPrime(int max);
 //* Use of 2 threads, doing pthread_join() after each computation
 void readMyFileThreaded1(char* fname);
 
-
 //* Reads a file with mutex sync, to be able to be executed from multiple threads simultaneously
 void readMyFileThreaded2(char* fname);
 
 //* Does the same thing as readMyFileThreaded2() but with N threads
 void readMyFileThreadedN(char* fname, unsigned N);
-
 
 void *print_prime_factors_wrapper(void *i);
 
@@ -63,8 +61,6 @@ void print_prime_factors(unsigned n);
 
 //* Test on a single number
 int is_prime(unsigned p);
-
-
 
 #ifdef	__cplusplus
 }

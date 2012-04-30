@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 	for (i = 0; i < x; i++) {
 		unsigned int l;
 
-		// Caveat Emptor: the RNG is intentionnaly left unseeded, so
+		// Caveat Emptor: the RNG is intentionally left unseeded, so
 		// as to get reproducible results.
 		l = random();
 

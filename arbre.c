@@ -5,7 +5,7 @@
 
 #include "arbre.h"
 
-// cr�ation d'un arbre binaire
+// creation d'un arbre binaire
 
 t_arbre *creer_arbre(t_element e, t_element* valeur, t_arbre *g, t_arbre *d) {
 	t_arbre *arbre = (t_arbre*) malloc(sizeof (t_arbre));
@@ -18,11 +18,9 @@ t_arbre *creer_arbre(t_element e, t_element* valeur, t_arbre *g, t_arbre *d) {
 	return arbre;
 }
 
-// destruction d'un noeud de l'arbre, cette fonction renvoie l'�l�ment,
+// destruction d'un noeud de l'arbre, cette fonction renvoie l'element,
 
 t_element detruire_noeud_arbre(t_arbre *noeud) {
-	//t_element el = (t_element ) malloc(sizeof(t_element));
-	//*el = *(noeud->cle);
 	t_element el = noeud->cle;
 	free(noeud->valeur);
 	noeud->valeur = NULL;
@@ -189,7 +187,7 @@ t_arbre *maj_hauteur_depuis_enfants(t_arbre *x) {
 
 	if (x->gauche == NULL && x->droit == NULL) { //* Si x est une feuille : 0
 		x->hauteur = 0;
-	} else { //* Sinon : on calcul a partir de ce qu'il y a en dessous
+	} else { //* Sinon : on calcule a partir de ce qu'il y a en dessous
 		x->hauteur = 1
 			+ ((hauteur_gauche > hauteur_droit) ?
 			hauteur_gauche : hauteur_droit);

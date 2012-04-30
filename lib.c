@@ -2,7 +2,7 @@
 
 #define STD_EXIT_THREAD_STATUS (void*)NULL
 
-static pthread_mutex_t mid, mid2;
+static pthread_mutex_t mid, mid2, m_screen;
 static t_arbre* MEM_TREE;
 static unsigned shift_pos = 0;
 
@@ -51,7 +51,7 @@ static void print_prime_factors_nodisp(unsigned n, int startresearch) {
 	int i;
 	startresearch = (startresearch >= 7) ? startresearch : 7;
 	int max = sqrt(n) + 1;
-	//printf(" //startresearch=%u// ", startresearch);
+	
 	for (i = startresearch; i < max; i += pas_i, pas_i = 6 - pas_i) {//* utilisation d'un pas alternatif
 		if (!(n % i)) {
 			printf(" %u", i);
@@ -108,7 +108,6 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
 	unsigned lastone = 0;
 	unsigned n_prev = n;
-	unsigned max = sqrt(n);
 	unsigned char first_loop = 1;
 
 	while (n > 1) {//* lorsque n = 1 ça veut dire qu'on a effectué l'opération n /= n donc c'est fini
@@ -158,19 +157,17 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 				n /= 5;
 				continue;
 			} else {
-				lastone = 3; // 3 (here) + 4 (pas_i added at the begining of the loop at the bottom) = 7 (the default beginning value)
+				lastone = 3; // 3 (here) + 4 (pas_i added at the beginning of the loop at the bottom) = 7 (the default beginning value)
 			}
 		}
 
 		unsigned i;
 		n_prev = n;
-		for (i = lastone + pas_i; i <= max;) {//* utilisation d'un pas alternatif
+		for (i = lastone + pas_i; (i*i) <= n;) {//* utilisation d'un pas alternatif
 			if (!(n % i)) {
 				factors[index++] = i;
-				//factors[index] = EoT;
 				n_prev = n;
 				n /= i;
-				//lastone = i;
 				already = rechercher_arbre(MEM_TREE, n);
 				if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
 #ifdef MAP
@@ -196,7 +193,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 				pas_i = 6 - pas_i;
 			}
 		}
-		if(i >= max && n != 1) {
+		if((i*i) >= n && n != 1) {
 			factors[index++] = n;
 		}
 		break;
@@ -237,11 +234,13 @@ void print_prime_factorsMemoized(unsigned n) {
 
 	k = get_prime_factors(n, factors);
 
+	pthread_mutex_lock(&m_screen);
 	printf("%u: ", n);
 	for (j = 0; j < k; j++) {
 		printf("%u ", factors[j]);
 	}
 	printf("\n");
+	pthread_mutex_unlock(&m_screen);
 }
 
 //* Reads a file, gets numbers from it, prints the prime factors decomposition for each one
@@ -411,6 +410,7 @@ void readMyFileThreadedN_And_Memoized(char* fname, unsigned N) {
 
 	pthread_mutex_init(&mid, NULL);
 	pthread_mutex_init(&mid2, NULL);
+	pthread_mutex_init(&m_screen, NULL);
 
 	int ij;
 	for (ij = 0; ij < N; ij++) {
@@ -426,6 +426,7 @@ void readMyFileThreadedN_And_Memoized(char* fname, unsigned N) {
 	free(result);
 	pthread_mutex_destroy(&mid);
 	pthread_mutex_destroy(&mid2);
+	pthread_mutex_destroy(&m_screen);
 	detruire_arbre(MEM_TREE);
 }
 
