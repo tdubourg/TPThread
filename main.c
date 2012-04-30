@@ -2,7 +2,7 @@
 //#define MAPTREE
 #include "lib.h"
 
-#define TESTFILE "numbersBIG.txt"
+#define TESTFILE "numbers.txt"
 #define N_THREAD 2
 
 
@@ -35,13 +35,13 @@ void exercice4() {
 
 int main(int argc, char** argv) {
 	//* *************** Exercice 1 ************
-	//exercice1();
+	exercice1();
 
 	//* *************** Exercice 2 ************
-	//exercice2();
+	exercice2();
 
 	//* *************** Exercice 3 ************
-	//exercice3();
+	exercice3();
 
 	//* *************** Exercice 4 ************
 	exercice4();
