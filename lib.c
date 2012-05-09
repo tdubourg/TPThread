@@ -16,7 +16,7 @@ static unsigned shift_pos = 0;
 static void init_table() {
 	int i = 0;
 	for(; i < MAX_VALUE_IN_TREE; i++) {
-		MEM_TABLE[i] = (t_el*)NULL;
+		MEM_TABLE[i] = NULL;
 	}
 }
 
@@ -25,6 +25,7 @@ static void inserer(unsigned n, t_element* val, unsigned size) {
 		return;
 	}
 	if(MEM_TABLE[n % MAX_VALUE_IN_TREE] != NULL) {//* already memoized, don't insert !
+		free(val);
 		return;
 	}
 	t_el* t = (t_el*) malloc(sizeof(t_el));
@@ -45,6 +46,8 @@ static void detruire_table() {
 	int i = 0;
 	for(; i < MAX_VALUE_IN_TREE; i++) {
 		if(MEM_TABLE[i] != NULL) {
+			free(MEM_TABLE[i]->valeur);
+			MEM_TABLE[i]->valeur = NULL;
 			free(MEM_TABLE[i]);
 		}
 	}
@@ -330,6 +333,7 @@ void *readMyFileFromMemorySynced_And_Memoized(void* aF) {
 		printf("%s\n", buffer);
 #endif
 	}
+	pthread_exit(STD_EXIT_THREAD_STATUS);
 	return STD_EXIT_THREAD_STATUS;
 }
 
