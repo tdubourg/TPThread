@@ -3,8 +3,52 @@
 #define STD_EXIT_THREAD_STATUS (void*)NULL
 
 static pthread_mutex_t mid, mid2, m_screen;
-static t_arbre* MEM_TREE;
+//static t_arbre* MEM_TREE;
+typedef struct t_table_el {
+	int cle;
+	t_element* valeur;
+	unsigned val_size;
+} t_el;
+
+static t_el* MEM_TABLE[MAX_VALUE_IN_TREE+1];
 static unsigned shift_pos = 0;
+
+static void init_table() {
+	int i = 0;
+	for(; i < MAX_VALUE_IN_TREE; i++) {
+		MEM_TABLE[i] = (t_el*)NULL;
+	}
+}
+
+static void inserer(unsigned n, t_element* val, unsigned size) {
+	if(n >= MAX_VALUE_IN_TREE) {//* out of bounds
+		return;
+	}
+	if(MEM_TABLE[n % MAX_VALUE_IN_TREE] != NULL) {//* already memoized, don't insert !
+		return;
+	}
+	t_el* t = (t_el*) malloc(sizeof(t_el));
+	t->cle = n;
+	t->valeur = val;
+	t->val_size = size;
+	MEM_TABLE[t->cle % MAX_VALUE_IN_TREE] = t;
+}
+
+static t_el* rechercher(unsigned n) {
+	if(n >= MAX_VALUE_IN_TREE) {
+		return NULL;
+	}
+	return MEM_TABLE[n % MAX_VALUE_IN_TREE];
+}
+
+static void detruire_table() {
+	int i = 0;
+	for(; i < MAX_VALUE_IN_TREE; i++) {
+		if(MEM_TABLE[i] != NULL) {
+			free(MEM_TABLE[i]);
+		}
+	}
+}
 
 /************************* CORE FUNCTIONS ************************/
 
@@ -102,7 +146,7 @@ void print_prime_factors(unsigned n) {
 //* compute prime factors decomposition using memoization
 //* then puts everything in an array
 unsigned get_prime_factors(unsigned n, unsigned* factors) {
-	t_arbre* already;
+	t_el* already;
 
 	unsigned index = 0;
 	unsigned pas_i = 4; //* important de garder la première assignation ici, pr pas réinitialiser le pas en cours de recherche
@@ -115,7 +159,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 #ifdef MAP
 			printf("Looking in the tree for %u\n", n);
 #endif
-			already = rechercher_arbre(MEM_TREE, n);
+			already = rechercher( n);
 			if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
 #ifdef MAP
 				printf("%u has already been memoized, using the values\n");
@@ -130,7 +174,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 					t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * (index));
 					memcpy(factors_cpy, factors, sizeof (t_element) * (index)); //* no plus one because index++ just before //* copy the factors[] array into factors_cpy[] array
 					pthread_mutex_lock(&mid2);
-					MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy, index); //* no plus one because index++ just before
+					inserer( n_prev, factors_cpy, index); //* no plus one because index++ just before
 					pthread_mutex_unlock(&mid2);
 				}
 				return index;
@@ -168,7 +212,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 				factors[index++] = i;
 				n_prev = n;
 				n /= i;
-				already = rechercher_arbre(MEM_TREE, n);
+				already = rechercher( n);
 				if (already != NULL) {//* Déjà calculé et stocké, on renvoit directement
 #ifdef MAP
 					printf("%u has already been memoized, using the values\n", n);
@@ -183,7 +227,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 						t_element* factors_cpy = (t_element*) malloc(sizeof (t_element) * (index + 1));
 						memcpy(factors_cpy, factors, sizeof (t_element) * (index + 1)); //* copy the factors[] array into factors_cpy[] array
 						pthread_mutex_lock(&mid2);
-						MEM_TREE = inserer_arbre(MEM_TREE, n_prev, factors_cpy, index + 1);
+						inserer( n_prev, factors_cpy, index + 1);
 						pthread_mutex_unlock(&mid2);
 					}
 					return index;
@@ -220,7 +264,7 @@ unsigned get_prime_factors(unsigned n, unsigned* factors) {
 			printf("\nover\n");
 	#endif
 			pthread_mutex_lock(&mid2);
-			MEM_TREE = inserer_arbre(MEM_TREE, curr, factors_cpy, memo + 1);
+			inserer( curr, factors_cpy, memo + 1);
 			pthread_mutex_unlock(&mid2);
 		}
 	}
@@ -386,7 +430,8 @@ void readMyFileThreadedN(char* fname, unsigned N) {
 void readMyFileThreadedN_And_Memoized(char* fname, unsigned N) {
 
 	//* Initialisation de la structure de données :
-	MEM_TREE = creer_arbre(6000, NULL, NULL, NULL);
+	//creer_arbre(6000, NULL, NULL, NULL);
+	init_table();
 
 	FILE *f;
 	f = fopen(fname, "r");
@@ -427,7 +472,8 @@ void readMyFileThreadedN_And_Memoized(char* fname, unsigned N) {
 	pthread_mutex_destroy(&mid);
 	pthread_mutex_destroy(&mid2);
 	pthread_mutex_destroy(&m_screen);
-	detruire_arbre(MEM_TREE);
+	// detruire_arbre(MEM_TREE);
+	detruire_table();
 }
 
 /******************* TEST FUNCTIONS **************** */
