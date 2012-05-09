@@ -1,8 +1,8 @@
-COMP=g++
+COMP=gcc
 EXE=tpthreads
 EFFACE=clean
 OBJ=lib.o arbre.o main.o
-LIBS= -lpthread
+LIBS= -lpthread -lm
 CUSTOM_LIBS=
 ECHO=echo
 RM=rm
